@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="hi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nova Calc</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f5fb;--pn:#fff;--tx:#14162a;--ac:#6c5ce7;--ac2:#00b4d8;--on:#fff}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0f1f;--pn:#151a33;--tx:#eaf0ff}}
+:root[data-theme="dark"]{--bg:#0b0f1f;--pn:#151a33;--tx:#eaf0ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{min-height:100vh;background:var(--bg);padding:12px}
+.w{max-width:720px;margin:0 auto}
+h1{font-size:22px;margin:4px 0 10px;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content}
+nav{display:flex;gap:6px;margin-bottom:10px}
+nav button{flex:1;padding:10px 2px;border:0;border-radius:12px;background:var(--pn);color:var(--tx);font:inherit;font-weight:600;cursor:pointer}
+nav button.on,.b{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on)}
+.b{padding:10px 14px;border:0;border-radius:12px;font:inherit;font-weight:600;cursor:pointer}
+section{display:none;background:var(--pn);border-radius:18px;padding:12px}
+section.on{display:block}
+.t{width:100%;padding:10px;border-radius:10px;border:1px solid #8885;background:transparent;color:var(--tx);font:inherit}
+.r{display:flex;gap:6px;margin:6px 0;align-items:center}.r .t{flex:1;min-width:0}
+input[type=color]{width:44px;height:40px;border:0;padding:0;background:none}
+input[type=range]{width:100%;accent-color:var(--ac)}
+#rs{text-align:right;min-height:30px;font-size:22px;font-weight:700;color:var(--ac)}
+#pad{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+#pad button{padding:13px 0;border:0;border-radius:12px;background:color-mix(in srgb,var(--tx) 9%,var(--pn));color:var(--tx);font:inherit;font-size:18px;cursor:pointer}
+#pad .f{font-size:14px}#pad .o{color:var(--ac);font-weight:700}
+#pad .q{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on)}
+#pad button:active{transform:scale(.94)}
+#hs div{padding:6px 2px;border-top:1px solid #8883;cursor:pointer;opacity:.8}
+#cv{display:block;width:100%;height:340px;border-radius:14px;background:var(--bg);color:var(--tx);touch-action:none;cursor:grab}
+#ms{height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.m{padding:9px 12px;border-radius:14px;background:color-mix(in srgb,var(--tx) 9%,var(--pn));align-self:flex-start;max-width:92%;white-space:pre-wrap}
+.m.u{align-self:flex-end;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on)}
+.ab{margin:6px 6px 0 0;padding:6px 10px;border:1px solid var(--ac);border-radius:10px;background:none;color:var(--ac);font:inherit;cursor:pointer}
+#sw{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.out{margin:10px 0;font-size:18px;font-weight:700;color:var(--ac);min-height:24px}
+small{opacity:.65}
+</style></head><body>
+<div id="app"><div class="w">
+<h1>✦ Nova Calc</h1>
+<nav id="nv"><button data-t="c" class="on">Calc</button><button data-t="g">Graph</button><button data-t="s">Solve</button><button data-t="a">AI</button><button data-t="t">Theme</button></nav>
+
+<section id="p-c" class="on">
+<div class="r"><button class="b" id="dg" style="padding:6px 12px">DEG</button><small>type or tap · x, π, e, Ans supported</small></div>
+<input class="t" id="ex" inputmode="none" autocomplete="off" placeholder="2sin(30)+√16" style="font-size:24px;text-align:right">
+<div id="rs"></div><div id="pad"></div><div id="hs"></div>
+</section>
+
+<section id="p-g"><canvas id="cv"></canvas>
+<div id="co" style="margin:4px 0"><small>drag to pan · scroll or ＋/－ to zoom</small></div>
+<div class="r"><input class="t gf" value="sin(x)"><input type="color" class="gc" value="#7c5cff"></div>
+<div class="r"><input class="t gf" value="x^2/4"><input type="color" class="gc" value="#00d4ff"></div>
+<div class="r"><input class="t gf" placeholder="f(x) = …"><input type="color" class="gc" value="#ff7a45"></div>
+<div class="r"><button class="b" id="zi">＋</button><button class="b" id="zo">－</button><button class="b" id="zr">Reset</button></div>
+</section>
+
+<section id="p-s"><b>Equation solver</b> <small>(angles in radians)</small>
+<input class="t" id="eq" value="x^2-5x+6=0" style="margin:8px 0">
+<div class="r"><button class="b" id="sv">Solve</button><button class="b" id="sg">Graph it</button></div>
+<div class="out" id="so"></div>
+<hr style="border:0;border-top:1px solid #8884"><b>Derivative &amp; integral</b>
+<input class="t" id="cf" value="x^3-2x" style="margin:8px 0">
+<div class="r"><input class="t" id="ca" value="1" aria-label="a"><input class="t" id="cb" value="3" aria-label="b"><button class="b" id="cg">Go</button></div>
+<div class="out" id="co2" style="font-size:16px"></div>
+</section>
+
+<section id="p-a"><div id="ms"><div class="m">नमस्ते! मैं Nova हूँ, आपका पर्सनल AI एजेंट। कोई भी सवाल या equation पूछिए, मैं step-by-step हल करूँगा।</div></div>
+<div class="r"><input class="t" id="aq" placeholder="जैसे: x² − 7x + 12 = 0 हल करो"><button class="b" id="as">Ask</button></div>
+</section>
+
+<section id="p-t"><b>Themes</b><div id="sw"></div>
+<b>Custom colors</b>
+<div class="r"><label>Accent <input type="color" id="pa"></label><label>Accent 2 <input type="color" id="pb"></label><label>Background <input type="color" id="pc"></label></div>
+<b>Color grading</b><div id="gs" style="margin:6px 0"></div>
+<button class="b" id="gx">Reset grading</button>
+</section>
+</div></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],R=document.documentElement;
+let deg=true,ANS=0;const H=[];
+const K=()=>deg?Math.PI/180:1;
+const fact=n=>{if(n<0||n%1||n>170)return NaN;let r=1;for(let i=2;i<=n;i++)r*=i;return r};
+const FN={sin:a=>Math.sin(a*K()),cos:a=>Math.cos(a*K()),tan:a=>Math.tan(a*K()),asin:a=>Math.asin(a)/K(),acos:a=>Math.acos(a)/K(),atan:a=>Math.atan(a)/K(),ln:Math.log,log:Math.log10,sqrt:Math.sqrt,cbrt:Math.cbrt,abs:Math.abs,exp:Math.exp,floor:Math.floor,ceil:Math.ceil,round:Math.round};
+const TK=new RegExp('\\d+\\.?\\d*|\\.\\d+|'+Object.keys(FN).join('|')+'|pi|ans|[a-z]|[-+*/^!()]','g');
+const fmt=(v,p=12)=>isFinite(v)?String(+v.toPrecision(p)):'Error';
+const rad=f=>{const o=deg;deg=false;try{return f()}finally{deg=o}};
+
+function compile(s){
+ s=s.toLowerCase().replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/√/g,'sqrt').replace(/π/g,'pi').replace(/\s/g,'');
+ const raw=s.match(TK)||[];
+ if(raw.join('')!==s)throw Error('Syntax error');
+ const T=[];
+ for(const t of raw){const p=T[T.length-1];
+  if(p&&/[\d.a-z(]/.test(t[0])&&(/[\d.)!]/.test(p.slice(-1))||(/^[a-z]+$/.test(p)&&!FN[p])))T.push('*');
+  T.push(t)}
+ let i=0;const pk=()=>T[i],nx=()=>T[i++];
+ const ex=()=>{let a=tm(),o;while((o=pk())=='+'||o=='-'){nx();const l=a,b=tm();a=o=='+'?x=>l(x)+b(x):x=>l(x)-b(x)}return a};
+ const tm=()=>{let a=un(),o;while((o=pk())=='*'||o=='/'){nx();const l=a,b=un();a=o=='*'?x=>l(x)*b(x):x=>l(x)/b(x)}return a};
+ const un=()=>{const o=pk();if(o=='-'){nx();const a=un();return x=>-a(x)}if(o=='+'){nx();return un()}return po()};
+ const po=()=>{let a=ps();if(pk()=='^'){nx();const b=un(),l=a;a=x=>Math.pow(l(x),b(x))}return a};
+ const ps=()=>{let a=pr();while(pk()=='!'){nx();const l=a;a=x=>fact(l(x))}return a};
+ const pr=()=>{const t=nx();if(t===undefined)throw Error('Incomplete expression');
+  if(/^[\d.]/.test(t)){const v=+t;return()=>v}
+  if(t=='('){const e=ex();if(nx()!=')')throw Error('Missing )');return e}
+  if(FN[t]){const f=FN[t],a=pk()=='('?pr():un();return x=>f(a(x))}
+  if(t=='x')return x=>x;
+  if(t=='pi')return()=>Math.PI;
+  if(t=='e')return()=>Math.E;
+  if(t=='ans')return()=>ANS;
+  throw Error('Unknown: '+t)};
+ const f=ex();if(i<T.length)throw Error('Syntax error');return f}
+
+/* ---------- Calc ---------- */
+const ex_=$('#ex'),rs=$('#rs');
+function live(){try{const v=compile(ex_.value)();rs.textContent=ex_.value&&isFinite(v)?'= '+fmt(v):''}catch(e){rs.textContent=''}}
+function hist(){const b=$('#hs');b.textContent='';H.forEach(h=>{const d=document.createElement('div');d.textContent=h[0]+' = '+h[1];d.onclick=()=>{ex_.value=h[0];live()};b.append(d)})}
+function go(){try{const v=compile(ex_.value)();if(!isFinite(v))throw 0;ANS=v;H.unshift([ex_.value,fmt(v)]);H.length=Math.min(H.length,6);hist();ex_.value=fmt(v);rs.textContent=''}catch(e){rs.textContent=e.message||'Error'}}
+'sin( cos( tan( ln( log( asin( acos( atan( √( e ( ) ^ ! π 7 8 9 ÷ ⌫ 4 5 6 × AC 1 2 3 − Ans 0 . x + ='.split(' ').forEach(k=>{
+ const b=document.createElement('button'),fn=k.length>1&&k.endsWith('(');
+ b.textContent=fn?k.slice(0,-1):k;b.className=fn?'f':'^!÷×−+'.includes(k)?'o':k=='='?'q':'';
+ b.onclick=()=>{if(k=='AC'){ex_.value='';rs.textContent=''}else if(k=='⌫'){ex_.value=ex_.value.slice(0,-1);live()}else if(k=='=')go();else{ex_.setRangeText(k,ex_.selectionStart,ex_.selectionEnd,'end');live()}};
+ $('#pad').append(b)});
+ex_.oninput=live;ex_.onkeydown=e=>{if(e.key=='Enter')go()};
+$('#dg').onclick=e=>{deg=!deg;e.target.textContent=deg?'DEG':'RAD';live()};
+
+/* ---------- Graph ---------- */
+let V={x:0,y:0,s:50},drag=null;const cv=$('#cv'),GF=$$('.gf'),GC=$$('.gc');
+const nice=r=>{const p=10**Math.floor(Math.log10(r)),m=r/p;return(m<1.5?1:m<3.5?2:m<7.5?5:10)*p};
+function draw(){
+ const w=cv.clientWidth,h=cv.clientHeight,d=devicePixelRatio||1;if(!w)return;
+ if(cv.width!=Math.round(w*d)){cv.width=Math.round(w*d);cv.height=Math.round(h*d)}
+ const g=cv.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,h);
+ const S=V.s,X=a=>w/2+(a-V.x)*S,Y=a=>h/2-(a-V.y)*S,st=nice(70/S);
+ g.font='11px system-ui';g.lineWidth=1;
+ for(let x=Math.ceil((V.x-w/2/S)/st)*st;x<V.x+w/2/S;x+=st){g.strokeStyle='#8883';g.beginPath();g.moveTo(X(x),0);g.lineTo(X(x),h);g.stroke();g.fillStyle='#888';g.fillText(+x.toFixed(8),X(x)+3,Math.min(h-4,Math.max(12,Y(0)+12)))}
+ for(let y=Math.ceil((V.y-h/2/S)/st)*st;y<V.y+h/2/S;y+=st){g.strokeStyle='#8883';g.beginPath();g.moveTo(0,Y(y));g.lineTo(w,Y(y));g.stroke();g.fillStyle='#888';g.fillText(+y.toFixed(8),Math.min(w-34,Math.max(4,X(0)+4)),Y(y)-3)}
+ g.strokeStyle=getComputedStyle(cv).color;g.lineWidth=1.6;g.beginPath();g.moveTo(X(0),0);g.lineTo(X(0),h);g.moveTo(0,Y(0));g.lineTo(w,Y(0));g.stroke();
+ rad(()=>GF.forEach((inp,k)=>{let f;if(!inp.value.trim())return;try{f=compile(inp.value)}catch(e){return}
+  g.strokeStyle=g.shadowColor=GC[k].value;g.lineWidth=2.4;g.shadowBlur=6;g.beginPath();
+  let pen=false,p0=0;
+  for(let i=0;i<=w;i++){const py=Y(f(V.x+(i-w/2)/S));
+   if(!isFinite(py)||Math.abs(py)>1e4){pen=false;continue}
+   if(pen&&Math.abs(py-p0)<h*3)g.lineTo(i,py);else g.moveTo(i,py);pen=true;p0=py}
+  g.stroke();g.shadowBlur=0}))}
+const zoom=k=>{V.s=Math.min(1e6,Math.max(1e-3,V.s*k));draw()};
+cv.onpointerdown=e=>{drag=[e.clientX,e.clientY];cv.setPointerCapture(e.pointerId)};
+cv.onpointerup=()=>drag=null;
+cv.onpointermove=e=>{
+ if(drag){V.x-=(e.clientX-drag[0])/V.s;V.y+=(e.clientY-drag[1])/V.s;drag=[e.clientX,e.clientY];draw()}
+ else{const r=cv.getBoundingClientRect(),x=V.x+(e.clientX-r.left-r.width/2)/V.s;let y='';try{y=fmt(rad(()=>compile(GF[0].value)(x)),6)}catch(_){}$('#co').textContent='x = '+fmt(x,6)+'    y₁ = '+y}};
+cv.onwheel=e=>{e.preventDefault();zoom(Math.exp(-e.deltaY*.0015))};
+$('#zi').onclick=()=>zoom(1.4);$('#zo').onclick=()=>zoom(1/1.4);$('#zr').onclick=()=>{V={x:0,y:0,s:50};draw()};
+GF.forEach(i=>i.oninput=draw);GC.forEach(i=>i.oninput=draw);addEventListener('resize',draw);
+
+/* ---------- Solve ---------- */
+function solve(){
+ const s=$('#eq').value,o=$('#so');
+ try{
+  if(!s.includes('=')&&!/x/i.test(s)){o.textContent='= '+fmt(compile(s)());return}
+  const [l,r]=s.split('='),L=compile(l),Rr=compile(r||'0'),rt=[];
+  const f=x=>L(x)-Rr(x),add=v=>{if(!rt.some(q=>Math.abs(q-v)<1e-5))rt.push(v)};
+  rad(()=>{let a=-100,fa=f(a),pa=NaN;
+   for(let k=1;k<=40000;k++){const b=-100+k*.005,fb=f(b);
+    if(isFinite(fa)&&isFinite(fb)){
+     if(fa*fb<0){let lo=a,hi=b,fl=fa;for(let j=0;j<60;j++){const m=(lo+hi)/2,fm=f(m);if(fl*fm<=0)hi=m;else{lo=m;fl=fm}}const v=(lo+hi)/2;if(Math.abs(f(v))<1e-6)add(v)}
+     else if(fa===0)add(a);
+     else if(isFinite(pa)&&Math.abs(fa)<Math.abs(pa)&&Math.abs(fa)<=Math.abs(fb)&&Math.abs(fa)<1e-3){
+      let lo=a-.005,hi=b;for(let j=0;j<80;j++){const m1=lo+(hi-lo)/3,m2=hi-(hi-lo)/3;if(Math.abs(f(m1))<Math.abs(f(m2)))hi=m2;else lo=m1}
+      const v=(lo+hi)/2;if(Math.abs(f(v))<1e-8)add(v)}}
+    pa=fa;a=b;fa=fb}});
+  rt.sort((p,q)=>p-q);
+  o.textContent=rt.length?rt.map((v,i)=>(rt.length>1?'x'+(i+1):'x')+' = '+fmt(Math.abs(v)<1e-9?0:v,8)).join('    '):'No real solution in [−100, 100]'
+ }catch(e){o.textContent=e.message||'Error'}}
+$('#sv').onclick=solve;$('#eq').onkeydown=e=>{if(e.key=='Enter')solve()};
+$('#sg').onclick=()=>{const [l,r]=$('#eq').value.split('=');GF[0].value=r&&r.trim()!='0'?'('+l+')-('+r+')':l;tab('g')};
+$('#cg').onclick=()=>{try{rad(()=>{const f=compile($('#cf').value),a=+$('#ca').value,b=+$('#cb').value,h=1e-5,n=2000;let t=f(a)+f(b);for(let k=1;k<n;k++)t+=f(a+k*(b-a)/n)*(k%2?4:2);
+ $('#co2').textContent='f’('+a+') ≈ '+fmt((f(a+h)-f(a-h))/(2*h),8)+'    ∫ from '+a+' to '+b+' ≈ '+fmt(t*(b-a)/n/3,8)})}catch(e){$('#co2').textContent=e.message}};
+
+/* ---------- AI agent ---------- */
+const SYS='You are Nova, the personal AI agent inside an advanced calculator app. Reply in the language the user writes in (Hindi, Hinglish or English). Solve step by step, briefly, in plain text without markdown. When useful, end with one app action tag: [[calc: expr]] to evaluate, [[graph: f(x)]] to plot, or [[solve: equation in x]] to solve numerically. Use app syntax: * / ^ sqrt() sin() cos() ln() log() pi e x.';
+const TAG=/\[\[(calc|graph|solve):([^\]]+)\]\]/g,chat=[];
+function act(k,v){v=v.trim();if(k=='calc'){ex_.value=v;live();tab('c')}else if(k=='graph'){GF[0].value=v;tab('g')}else{$('#eq').value=v;tab('s');solve()}}
+async function ask(){
+ const q=$('#aq').value.trim();if(!q)return;$('#aq').value='';
+ const m=$('#ms'),u=document.createElement('div'),b=document.createElement('div');
+ u.className='m u';u.textContent=q;b.className='m';b.textContent='…';m.append(u,b);m.scrollTop=m.scrollHeight;
+ try{
+  const sm=window.claude&&await claude.use('sample');if(!sm)throw Error('AI is not available in this view.');
+  const ctx='Calculator state: expression="'+ex_.value+'", graph functions: '+GF.map(g=>g.value).filter(Boolean).join(' ; ');
+  const r=await sm(SYS+'\n'+ctx+'\n\n'+chat.slice(-8).map(c=>c[0]+': '+c[1]).join('\n')+'\nUser: '+q+'\nNova:',{cache:false,onText:({text})=>{b.textContent=text.replace(TAG,'');m.scrollTop=m.scrollHeight}});
+  chat.push(['User',q],['Nova',r.text]);b.textContent=r.text.replace(TAG,'').trim();
+  for(const [,k,v] of r.text.matchAll(TAG)){const a=document.createElement('button');a.className='ab';a.textContent=(k=='calc'?'Calculate: ':k=='graph'?'Graph: ':'Solve: ')+v.trim();a.onclick=()=>act(k,v);b.append(document.createElement('br'),a)}
+ }catch(e){b.textContent=e.code=='not_granted'?'AI permission was declined.':e.message||'AI error'}
+ m.scrollTop=m.scrollHeight}
+$('#as').onclick=ask;$('#aq').onkeydown=e=>{if(e.key=='Enter')ask()};
+
+/* ---------- Theme & grading ---------- */
+const P=[['Aurora','#0b0f1f','#151a33','#eaf0ff','#7c5cff','#00d4ff'],['Sunset','#1b0f1e','#2a1730','#fff1ea','#ff7a45','#ff3d81'],['Forest','#0c1a14','#14291f','#e8fff2','#2ee59d','#b6ff5c'],['Neon','#05050a','#101018','#f4f4ff','#ff2bd6','#00f0ff'],['Ocean','#eaf6ff','#ffffff','#0b2540','#0a84ff','#00c2d1'],['Paper','#f6f1e7','#fffdf8','#2b2620','#c2410c','#e0a100']];
+const lum=h=>{const n=parseInt(h.slice(1),16);return((n>>16)*299+(n>>8&255)*587+(n&255)*114)/1000};
+const setv=(k,v)=>{R.style.setProperty('--'+k,v);if(k=='ac')R.style.setProperty('--on',lum(v)>150?'#0a0a14':'#fff')};
+function theme(t){['bg','pn','tx','ac','ac2'].forEach((k,i)=>setv(k,t[i+1]));$('#pa').value=t[4];$('#pb').value=t[5];$('#pc').value=t[1];draw()}
+P.forEach(t=>{const b=document.createElement('button');b.textContent=t[0];b.style.cssText='padding:10px 14px;border-radius:12px;border:2px solid #8886;font:inherit;font-weight:700;cursor:pointer;color:'+(lum(t[4])>150?'#0a0a14':'#fff')+';background:linear-gradient(135deg,'+t[4]+','+t[5]+')';b.onclick=()=>theme(t);$('#sw').append(b)});
+$('#pa').oninput=e=>{setv('ac',e.target.value);draw()};
+$('#pb').oninput=e=>{setv('ac2',e.target.value)};
+$('#pc').oninput=e=>{const v=e.target.value,l=lum(v)>150;setv('bg',v);setv('pn','color-mix(in srgb,'+v+' 88%,'+(l?'#000':'#fff')+')');setv('tx',l?'#14162a':'#eef0ff');draw()};
+const GV=[0,100,100,100],grade=()=>$('#app').style.filter='hue-rotate('+GV[0]+'deg) saturate('+GV[1]+'%) brightness('+GV[2]+'%) contrast('+GV[3]+'%)';
+[['Hue',-180,180],['Saturation',0,200],['Brightness',60,140],['Contrast',70,130]].forEach((s,i)=>{const l=document.createElement('label'),r=document.createElement('input');l.style.display='block';l.append(s[0]);r.type='range';r.min=s[1];r.max=s[2];r.value=GV[i];r.oninput=()=>{GV[i]=r.value;grade()};l.append(r);$('#gs').append(l)});
+$('#gx').onclick=()=>{GV.splice(0,4,0,100,100,100);$$('#gs input').forEach((r,i)=>r.value=GV[i]);grade()};
+
+function tab(t){$$('#nv button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));$$('section').forEach(s=>s.classList.toggle('on',s.id=='p-'+t));if(t=='g')draw()}
+$$('#nv button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+theme(P[0]);
+</script></body></html>
